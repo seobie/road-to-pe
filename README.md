@@ -11,6 +11,7 @@
 
 - 📋 [커리큘럼](backend-study/CURRICULUM.md)
 - ✅ [진도 기록](backend-study/PROGRESS.md)
+- 📝 [학습노트](backend-study/notes/) — 세션에서 정리한 개념 노트(HTML)
 
 시작: 2026-06 · 하루 약 2시간 · 목표 16주
 

@@ -5,8 +5,8 @@
 
 ## 현재 위치
 
-- **단계**: 1단계 · Kotlin 속성 (1~2주차) — Day 1
-- **다음 할 일**: Kotlin Tour Beginner 1~4챕터 실습 + JDK(Temurin LTS)·IntelliJ 설치. 다음 세션에 JVM 리터러시 퀴즈
+- **단계**: 1단계 · Kotlin 속성 (1~2주차) — Day 1 진행 중
+- **다음 할 일**: Kotlin Tour Beginner 나머지(Functions, Classes, Null safety) → 1단계 CLI 프로그램 작성. (JVM 리터러시 + 기초 문법 퀴즈 진행 중)
 
 ## 단계별 체크리스트
 
@@ -22,6 +22,8 @@
 | 날짜 | 학습 내용 | 퀴즈 결과 / 약한 부분 | 다음에 할 것 |
 |---|---|---|---|
 | 2026-06-26 | JVM 리터러시 강의 (JDK/JRE/JVM, 바이트코드, GC, long-running process) + TS→Kotlin 멘탈 모델 | 퀴즈는 다음 세션 (실습 후) | Kotlin Tour Beginner 실습, JDK+IntelliJ 설치 |
+| 2026-06-26 | 학습 환경 구축(OpenJDK 21 + IntelliJ 2026.1, JAVA_HOME 설정) + Kotlin Tour Beginner 1~4(Hello world·Basic types·Collections·Control flow) | 퀴즈 진행 중 (결과 다음 세션 기록) | Tour 나머지(Functions/Classes/Null safety), CLI 프로그램 |
+| 2026-07-10 | 개념 예습(2~3단계 선행 문답): JVM(V8/Node 비유·바이트코드·JIT·GC·Write Once Run Anywhere)·Spring/Spring Boot(React/Next.js)·DI와 어노테이션·Actuator·SDD → [학습노트 HTML](notes/2026-07-10-jvm-spring-for-frontend.html)로 정리 | 예습이라 퀴즈 없음 | 커리큘럼 순서대로 1단계 Kotlin Tour·CLI 실습 계속 |
 
 ## 약한 부분 누적 (복습 대상)
 
