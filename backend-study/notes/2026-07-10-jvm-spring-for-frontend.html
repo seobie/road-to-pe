@@ -344,7 +344,7 @@ footer{border-top:1px solid var(--line);margin-top:20px;padding:44px 0 80px}
       <h3 class="reveal">문제부터 — 객체가 필요한 걸 직접 <span class="k">new</span> 한다</h3>
       <div class="code reveal" data-tabs>
         <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="desc">안티패턴</span>
-          <div class="tabs"><button class="tab-btn active" data-lang="java">Java</button><button class="tab-btn" data-lang="kotlin">Kotlin</button></div></div>
+          <div class="tabs"><button class="tab-btn active" data-lang="java">Java</button><button class="tab-btn" data-lang="kotlin">Kotlin</button><button class="tab-btn" data-lang="ts">TS</button></div></div>
 <pre data-pre="java"><span class="key">class</span> PostService {
     <span class="key">private</span> EmailClient email = <span class="key">new</span> EmailClient();               <span class="com">// 직접 생성</span>
     <span class="key">private</span> PostRepository posts = <span class="key">new</span> PostRepository(<span class="key">new</span> DbConnection(<span class="str">"prod-db"</span>));
@@ -353,14 +353,18 @@ footer{border-top:1px solid var(--line);margin-top:20px;padding:44px 0 80px}
     <span class="key">private val</span> email = EmailClient()                     <span class="com">// new 없음, val</span>
     <span class="key">private val</span> posts = PostRepository(DbConnection(<span class="str">"prod-db"</span>))
 }</pre>
+<pre data-pre="ts" hidden><span class="key">class</span> PostService {
+  <span class="key">private</span> email = <span class="key">new</span> EmailClient();                  <span class="com">// TS도 직접 생성은 Java와 거의 동일</span>
+  <span class="key">private</span> posts = <span class="key">new</span> PostRepository(<span class="key">new</span> DbConnection(<span class="str">"prod-db"</span>));
+}</pre>
       </div>
-      <p class="cap reveal">↑ 우측 상단 <strong>Java · Kotlin</strong> 탭으로 언어 전환 (전체 코드블록 동기화)</p>
+      <p class="cap reveal">↑ 우측 상단 <strong>Java · Kotlin · TS</strong> 탭으로 언어 전환 (전체 코드블록 동기화 · TS는 NestJS 기준)</p>
       <p class="reveal">무엇이 문제인가 — <strong>강하게 묶인다.</strong> 이 클래스가 "알림은 <code>EmailClient</code>로, DB는 prod-db로"까지 다 안다. 테스트할 때 가짜 이메일 클라이언트로 못 바꾸고, prod-db에 진짜로 붙어버린다. 게다가 <code>EmailClient</code>가 필요한 클래스가 50개면 50곳에서 각자 <code>new</code> — 만드는 방식이 바뀌면 50곳을 다 고쳐야 한다. 프론트로 치면 <em>모든 컴포넌트가 fetch 클라이언트를 각자 new로 만드는 것</em>과 같다.</p>
 
       <h3 class="reveal">해결 — 밖에서 주입받는다</h3>
       <div class="code reveal" data-tabs>
         <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="desc">생성자 주입</span>
-          <div class="tabs"><button class="tab-btn active" data-lang="java">Java</button><button class="tab-btn" data-lang="kotlin">Kotlin</button></div></div>
+          <div class="tabs"><button class="tab-btn active" data-lang="java">Java</button><button class="tab-btn" data-lang="kotlin">Kotlin</button><button class="tab-btn" data-lang="ts">TS</button></div></div>
 <pre data-pre="java"><span class="key">class</span> PostService {
     <span class="key">private final</span> EmailClient email;
     <span class="key">private final</span> PostRepository posts;
@@ -376,6 +380,14 @@ footer{border-top:1px solid var(--line);margin-top:20px;padding:44px 0 80px}
     <span class="key">private val</span> email: EmailClient,
     <span class="key">private val</span> posts: PostRepository,
 )</pre>
+<pre data-pre="ts" hidden><span class="anno">@Injectable</span>()
+<span class="key">class</span> PostService {
+  <span class="com">// constructor 파라미터의 private readonly = 선언·대입 한 번에 (Kotlin val과 동일)</span>
+  <span class="key">constructor</span>(
+    <span class="key">private readonly</span> email: EmailClient,
+    <span class="key">private readonly</span> posts: PostRepository,
+  ) {}
+}</pre>
       </div>
       <p class="reveal">이제 이 클래스는 "이메일 발송 기능과 글 저장소가 필요하다"고 <em>선언만</em> 할 뿐, 그게 진짜인지 가짜인지·어떻게 만들어졌는지 모른다. 그럼 이 부품들을 누가 만들어 넣어주나? → Spring이다.</p>
 
@@ -396,7 +408,7 @@ footer{border-top:1px solid var(--line);margin-top:20px;padding:44px 0 80px}
 
       <div class="code reveal" data-tabs>
         <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="desc">스테레오타입</span>
-          <div class="tabs"><button class="tab-btn active" data-lang="java">Java</button><button class="tab-btn" data-lang="kotlin">Kotlin</button></div></div>
+          <div class="tabs"><button class="tab-btn active" data-lang="java">Java</button><button class="tab-btn" data-lang="kotlin">Kotlin</button><button class="tab-btn" data-lang="ts">TS</button></div></div>
 <pre data-pre="java"><span class="anno">@Service</span>        <span class="com">// "얜 비즈니스 로직 담당 빈. 컨테이너에 등록해"</span>
 <span class="key">class</span> PostService { ... }
 
@@ -413,13 +425,21 @@ footer{border-top:1px solid var(--line);margin-top:20px;padding:44px 0 80px}
 
 <span class="anno">@RestController</span>
 <span class="key">class</span> PostController { ... }</pre>
+<pre data-pre="ts" hidden><span class="anno">@Injectable</span>()          <span class="com">// Spring @Service·@Repository ≈ NestJS @Injectable (구분 없음)</span>
+<span class="key">class</span> PostService {}
+
+<span class="anno">@Injectable</span>()
+<span class="key">class</span> PostRepository {}
+
+<span class="anno">@Controller</span>(<span class="str">'posts'</span>)   <span class="com">// ≈ @RestController + 기본 경로</span>
+<span class="key">class</span> PostController {}</pre>
       </div>
       <p class="reveal muted"><code>@Service</code>·<code>@Repository</code>·<code>@Controller</code>는 기능적으론 거의 같다(다 "빈 등록"). 이름을 나누는 이유는 <strong>역할을 사람이 읽어서 알게</strong> 하려는 것 — 계층(웹/로직/데이터)이 코드에서 한눈에 보인다.</p>
 
       <h3 class="reveal">실제로 조립되는 모습</h3>
       <div class="code reveal" data-tabs>
         <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="desc">조립 + 라우팅</span>
-          <div class="tabs"><button class="tab-btn active" data-lang="java">Java</button><button class="tab-btn" data-lang="kotlin">Kotlin</button></div></div>
+          <div class="tabs"><button class="tab-btn active" data-lang="java">Java</button><button class="tab-btn" data-lang="kotlin">Kotlin</button><button class="tab-btn" data-lang="ts">TS</button></div></div>
 <pre data-pre="java"><span class="anno">@RestController</span>
 <span class="key">class</span> PostController {
     <span class="key">private final</span> PostService service;
@@ -440,6 +460,15 @@ footer{border-top:1px solid var(--line);margin-top:20px;padding:44px 0 80px}
     <span class="anno">@GetMapping</span>(<span class="str">"/posts/{id}"</span>)                       <span class="com">// GET 요청을 이 메서드에 연결</span>
     <span class="key">fun</span> get(<span class="anno">@PathVariable</span> id: Long): Post =          <span class="com">// 식(=) 본문, 반환 타입은 뒤에</span>
         service.findById(id)
+}</pre>
+<pre data-pre="ts" hidden><span class="anno">@Controller</span>(<span class="str">'posts'</span>)
+<span class="key">class</span> PostController {
+  <span class="key">constructor</span>(<span class="key">private readonly</span> service: PostService) {}   <span class="com">// 생성자 주입 (개념 동일)</span>
+
+  <span class="anno">@Get</span>(<span class="str">':id'</span>)                              <span class="com">// ≈ @GetMapping("/posts/{id}")</span>
+  get(<span class="anno">@Param</span>(<span class="str">'id'</span>) id: number): Post {   <span class="com">// ≈ @PathVariable</span>
+    <span class="key">return</span> <span class="key">this</span>.service.findById(id);
+  }
 }</pre>
       </div>
       <p class="reveal">벌어지는 일: <code>@RestController</code>가 클래스를 등록하고 리턴값을 JSON 응답으로 만든다 · 생성자의 <code>PostService</code>는 Spring이 미리 만들어둔 걸 자동 주입(개발자가 <code>new</code> 안 함) · <code>@GetMapping</code>은 프론트 라우터의 <code>&lt;Route path&gt;</code>처럼 URL을 메서드에 연결 · <code>@PathVariable</code>은 경로 값을 인자로 바인딩. <strong>어노테이션 몇 개로 "라우팅 + 객체 조립 + JSON 직렬화"가 전부 선언적으로 처리</strong>된다.</p>
@@ -463,19 +492,19 @@ footer{border-top:1px solid var(--line);margin-top:20px;padding:44px 0 80px}
       </div>
       <p class="reveal"><strong>왜 이렇게까지 하나</strong> — 한 문장으로: <em>부품을 갈아끼우기 쉽게(테스트·유지보수), 조립·인프라 코드는 프레임워크에 맡기고 로직에만 집중하려고.</em></p>
 
-      <h3 class="reveal">Java와 Kotlin — 같은 개념, 다른 문법</h3>
-      <p class="reveal">위 예시는 코드블록 우측 상단 <strong>Java / Kotlin 탭</strong>으로 바꿔 볼 수 있다(한 번 고르면 전체가 그 언어로 전환된다). 둘은 <strong>같은 JVM · 같은 Spring · 같은 어노테이션</strong>이라 개념·동작이 완전히 동일하고, 문법만 다르다.</p>
+      <h3 class="reveal">Java · Kotlin · TS — 같은 개념, 다른 문법</h3>
+      <p class="reveal">위 예시는 코드블록 우측 상단 <strong>Java / Kotlin / TS 탭</strong>으로 바꿔 볼 수 있다(한 번 고르면 전체가 그 언어로 전환된다). Java·Kotlin은 <strong>같은 JVM · 같은 Spring</strong>이라 개념·동작이 완전히 동일하고 문법만 다르다. <strong>TS 탭은 <a href="https://docs.nestjs.com/">NestJS</a> 기준</strong>인데 — React/바닐라 TS엔 DI 컨테이너가 없지만, NestJS가 Angular/Spring에서 영감받아 만들어져 <strong>Spring 개념이 거의 1:1로 대응</strong>된다(그래서 세션님한테는 오히려 지름길).</p>
       <div class="tablewrap reveal">
         <table>
-          <thead><tr><th></th><th>Java</th><th class="be-col">Kotlin</th></tr></thead>
+          <thead><tr><th></th><th>Java</th><th class="be-col">Kotlin</th><th class="fe-col">TS (NestJS)</th></tr></thead>
           <tbody>
-            <tr><td>생성자 주입</td><td>필드 + 생성자 + <code>this</code> 대입</td><td class="be-col">주 생성자 <code>(private val x: T)</code> 한 줄</td></tr>
-            <tr><td>불변 필드</td><td><code>private final X x</code></td><td class="be-col"><code>val x</code> (val이 곧 final)</td></tr>
-            <tr><td>메서드</td><td><code>Type name(...) { return ... }</code></td><td class="be-col"><code>fun name(...): Type = ...</code></td></tr>
-            <tr><td>객체 생성</td><td><code>new Foo()</code></td><td class="be-col"><code>Foo()</code> (new 없음)</td></tr>
-            <tr><td>세미콜론</td><td>필수</td><td class="be-col">없음</td></tr>
-            <tr><td>null</td><td>타입으로 구분 안 함</td><td class="be-col"><code>Long</code>(non-null) vs <code>Long?</code></td></tr>
-            <tr><td>어노테이션</td><td colspan="2" style="text-align:center">동일 — <code>@Service</code>·<code>@GetMapping</code> 그대로</td></tr>
+            <tr><td>생성자 주입</td><td>필드 + 생성자 + <code>this</code></td><td class="be-col">주 생성자 <code>(private val x)</code></td><td class="fe-col"><code>constructor(private readonly x)</code></td></tr>
+            <tr><td>불변 필드</td><td><code>private final X x</code></td><td class="be-col"><code>val x</code></td><td class="fe-col"><code>private readonly x</code></td></tr>
+            <tr><td>메서드</td><td><code>T name(){ return }</code></td><td class="be-col"><code>fun name(): T = ...</code></td><td class="fe-col"><code>name(): T { return }</code></td></tr>
+            <tr><td>객체 생성</td><td><code>new Foo()</code></td><td class="be-col"><code>Foo()</code></td><td class="fe-col"><code>new Foo()</code></td></tr>
+            <tr><td>세미콜론</td><td>필수</td><td class="be-col">없음</td><td class="fe-col">선택(관례상 씀)</td></tr>
+            <tr><td>null</td><td>구분 안 함</td><td class="be-col"><code>Long</code> vs <code>Long?</code></td><td class="fe-col"><code>number</code> vs <code>number | null</code></td></tr>
+            <tr><td>어노테이션 / 데코레이터</td><td><code>@Service</code></td><td class="be-col"><code>@Service</code> (동일)</td><td class="fe-col"><code>@Injectable</code> (데코레이터)</td></tr>
           </tbody>
         </table>
       </div>
